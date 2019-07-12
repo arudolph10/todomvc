@@ -63,14 +63,20 @@ jQuery(function ($) {
 				.on('focusout', '.edit', this.update.bind(this))
 				.on('click', '.destroy', this.destroy.bind(this));
 		},
+
+		storeTodos: function() {
+      util.store('todos-jquery', this.todos);
+    },
+		
+		
 		render: function () {
-			var todos = this.getFilteredTodos();
-			$('#todo-list').html(this.todoTemplate(todos));
-			$('#main').toggle(todos.length > 0);
-			$('#toggle-all').prop('checked', this.getActiveTodos().length === 0);
-			this.renderFooter();
-			$('#new-todo').focus();
-			util.store('todos-jquery', this.todos);
+			var todos = this.getFilteredTodos(); //get array of todos depending on which filter is applied
+			$('#todo-list').html(this.todoTemplate(todos)); //handlebars, injects html
+			$('#main').toggle(todos.length > 0); //hides or shows an element, toggles visibility, true or false
+			$('#toggle-all').prop('checked', this.getActiveTodos().length === 0); // call the prop method on toggleall method
+			this.renderFooter();//renders the footer
+			$('#new-todo').focus();//puts cursor in "add todo" input field
+			util.store('todos-jquery', this.todos); //stores data to local storage, simple database, 
 		},
 		renderFooter: function () {
 			var todoCount = this.todos.length;
@@ -90,7 +96,7 @@ jQuery(function ($) {
 			this.todos.forEach(function (todo) {
 				todo.completed = isChecked;
 			});
-
+			this.storeTodos();
 			this.render();
 		},
 		getActiveTodos: function () {
@@ -117,6 +123,7 @@ jQuery(function ($) {
 		destroyCompleted: function () {
 			this.todos = this.getActiveTodos();
 			this.filter = 'all';
+			this.storeTodos();
 			this.render();
 		},
 		// accepts an element from inside the `.item` div and
@@ -147,12 +154,13 @@ jQuery(function ($) {
 			});
 
 			$input.val('');
-
+			this.storeTodos();
 			this.render();
 		},
 		toggle: function (e) {
 			var i = this.indexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
+			this.storeTodos();
 			this.render();
 		},
 		edit: function (e) {
@@ -183,11 +191,12 @@ jQuery(function ($) {
 			} else {
 				this.todos[this.indexFromEl(el)].title = val;
 			}
-
+			this.storeTodos();
 			this.render();
 		},
 		destroy: function (e) {
 			this.todos.splice(this.indexFromEl(e.target), 1);
+			this.storeTodos();
 			this.render();
 		}
 	};
